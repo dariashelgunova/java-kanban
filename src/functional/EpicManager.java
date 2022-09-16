@@ -1,8 +1,15 @@
+package functional;
+
+import models.Epic;
+import models.Status;
+import models.SubTask;
+import repository.Repository;
+
 import java.util.ArrayList;
 
 public class EpicManager {
 
-    Repository repository;
+    private final Repository repository;
 
     public EpicManager(Repository repository) {
         this.repository = repository;
@@ -38,13 +45,9 @@ public class EpicManager {
         }
     }
 
-    public Epic create(int id, String name, String description) {
+    public Epic create(String name, String description) {
         ArrayList<SubTask> subTaskList = new ArrayList<>();
-        Epic epic = new Epic();
-        epic.setId(id);
-        epic.setName(name);
-        epic.setDescription(description);
-        epic.setSubTasks(subTaskList);
+        Epic epic = new Epic(name, description, subTaskList);
 
         if (subTaskList.isEmpty() || isNew(epic)) {
             epic.setStatus(Status.NEW);
@@ -53,7 +56,7 @@ public class EpicManager {
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
-        repository.epicsByID.put(id, epic);
+        repository.saveNewEpic(epic);
         return epic;
     }
 
@@ -92,8 +95,11 @@ public class EpicManager {
         return isDeleted;
     }
 
+    public ArrayList<SubTask> findSubTasksByEpic(Epic epic) {
+        return epic.getSubTasks();
+    }
 
-    public boolean isNew(Epic epic) {
+    private boolean isNew(Epic epic) {
         ArrayList<SubTask> subTaskArrayList = epic.getSubTasks();
 
         for(SubTask subTask : subTaskArrayList) {
@@ -104,7 +110,7 @@ public class EpicManager {
         return true;
     }
 
-    public boolean isDone(Epic epic) {
+    private boolean isDone(Epic epic) {
         ArrayList<SubTask> subTaskArrayList = epic.getSubTasks();
 
         for(SubTask subTask : subTaskArrayList) {

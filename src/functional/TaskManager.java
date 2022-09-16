@@ -1,7 +1,13 @@
+package functional;
+
+import models.Status;
+import models.Task;
+import repository.Repository;
+
 import java.util.ArrayList;
 
 public class TaskManager {
-    Repository repository;
+    private final Repository repository;
 
     public TaskManager(Repository repository) {
         this.repository = repository;
@@ -36,13 +42,9 @@ public class TaskManager {
         }
     }
 
-    public Task create(int id, String name, String description, Status status) {
-        Task task = new Task();
-        task.setId(id);
-        task.setName(name);
-        task.setDescription(description);
-        task.setStatus(status);
-        repository.tasksByID.put(id, task);
+    public Task create(String name, String description, Status status) {
+        Task task = new Task(name, description, status);
+        repository.saveNewTask(task);
         return task;
     }
 

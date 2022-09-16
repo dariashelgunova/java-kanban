@@ -1,8 +1,15 @@
+package functional;
+
+import models.Epic;
+import models.Status;
+import models.SubTask;
+import repository.Repository;
+
 import java.util.ArrayList;
 
 public class SubTaskManager {
 
-    Repository repository;
+    private final Repository repository;
 
     EpicManager epicManager;
 
@@ -29,7 +36,7 @@ public class SubTaskManager {
             repository.subTasksByID.clear();
             isDeleted = true;
             for (Epic epic : repository.epicsByID.values()) {
-                epic.subTasks.clear();
+                epic.getSubTasks().clear();
             }
         }
         return isDeleted;
@@ -44,15 +51,11 @@ public class SubTaskManager {
         }
     }
 
-    public SubTask create(int id, String name, String description, Status status, Epic epic) {
-        SubTask subTask = new SubTask();
+    public SubTask create(String name, String description, Status status, Integer epicID) {
+        SubTask subTask = new SubTask(name, description, status, epicID);
+        Epic epic = repository.epicsByID.get(epicID);
 
-        subTask.setId(id);
-        subTask.setName(name);
-        subTask.setDescription(description);
-        subTask.setStatus(status);
-        subTask.setEpic(epic);
-        repository.subTasksByID.put(id, subTask);
+        repository.saveNewSubTask(subTask);
 
         ArrayList<SubTask> subTaskList = epic.getSubTasks();
         subTaskList.add(subTask);
@@ -64,14 +67,24 @@ public class SubTaskManager {
         boolean isUpdated;
 
         if (repository.subTasksByID.containsKey(subTask.getId())) {
-            Epic currentEpic = subTask.epic;
+            Integer currentEpicID = subTask.getEpicID();
 
-            for (int i : repository.epicsByID.keySet()) {
-                if (repository.epicsByID.get(i).equals(currentEpic) && !repository.epicsByID.get(i).subTasks.isEmpty()) {
-                    repository.epicsByID.get(i).subTasks.remove(subTask);
-                }
+            if (!repository.epicsByID.get(currentEpicID).getSubTasks().isEmpty()) {
+                repository.epicsByID.get(currentEpicID).getSubTasks().remove(subTask);
             }
-            create(subTask.getId(), subTask.getName(), subTask.getDescription(), subTask.getStatus(), subTask.getEpic());
+
+            SubTask updatedSubTask = repository.subTasksByID.get(subTask.getId());
+            updatedSubTask.setName(subTask.getName());
+            updatedSubTask.setDescription(subTask.getDescription());
+            updatedSubTask.setStatus(subTask.getStatus());
+            updatedSubTask.setEpicID(subTask.getEpicID());
+
+            Epic epic = repository.epicsByID.get(updatedSubTask.getEpicID());
+
+            ArrayList<SubTask> subTaskList = epic.getSubTasks();
+            subTaskList.add(subTask);
+            epicManager.update(epic);
+
             isUpdated = true;
         } else {
             isUpdated = false;
@@ -87,12 +100,10 @@ public class SubTaskManager {
             isDeleted = false;
         } else {
             repository.subTasksByID.remove(ID);
-            Epic currentEpic = repository.subTasksByID.get(ID).getEpic();
+            Integer currentEpicID = repository.subTasksByID.get(ID).getEpicID();
 
-            for (int i : repository.epicsByID.keySet()) {
-                if (repository.epicsByID.get(i).equals(currentEpic) && !repository.epicsByID.get(i).subTasks.isEmpty()) {
-                    repository.epicsByID.get(i).subTasks.remove(repository.subTasksByID.get(ID));
-                }
+            if (!repository.epicsByID.get(currentEpicID).getSubTasks().isEmpty()) {
+                repository.epicsByID.get(currentEpicID).getSubTasks().remove(repository.subTasksByID.get(ID));
             }
             isDeleted = true;
         }
