@@ -21,8 +21,8 @@ public class SubTaskManager {
     public ArrayList<SubTask> findAll() {
         ArrayList<SubTask> subTasksList = new ArrayList<>();
 
-        for (int i : repository.subTasksByID.keySet()) {
-            subTasksList.add(repository.subTasksByID.get(i));
+        for (int i : repository.getSubTasksMap().keySet()) {
+            subTasksList.add(repository.getSubTasksMap().get(i));
         }
         return subTasksList;
     }
@@ -30,12 +30,12 @@ public class SubTaskManager {
     public boolean deleteAll() {
         boolean isDeleted;
 
-        if (repository.subTasksByID.isEmpty()) {
+        if (repository.getSubTasksMap().isEmpty()) {
             isDeleted = false;
         } else {
-            repository.subTasksByID.clear();
+            repository.getSubTasksMap().clear();
             isDeleted = true;
-            for (Epic epic : repository.epicsByID.values()) {
+            for (Epic epic : repository.getEpicsMap().values()) {
                 epic.getSubTasks().clear();
             }
         }
@@ -44,16 +44,16 @@ public class SubTaskManager {
 
 
     public SubTask findByID(int ID) {
-        if (!repository.subTasksByID.containsKey(ID)) {
+        if (!repository.getSubTasksMap().containsKey(ID)) {
             return null;
         } else {
-            return repository.subTasksByID.get(ID);
+            return repository.getSubTasksMap().get(ID);
         }
     }
 
     public SubTask create(String name, String description, Status status, Integer epicID) {
         SubTask subTask = new SubTask(name, description, status, epicID);
-        Epic epic = repository.epicsByID.get(epicID);
+        Epic epic = repository.getEpicsMap().get(epicID);
 
         repository.saveNewSubTask(subTask);
 
@@ -66,20 +66,20 @@ public class SubTaskManager {
     public boolean update(SubTask subTask) {
         boolean isUpdated;
 
-        if (repository.subTasksByID.containsKey(subTask.getId())) {
+        if (repository.getSubTasksMap().containsKey(subTask.getId())) {
             Integer currentEpicID = subTask.getEpicID();
 
-            if (!repository.epicsByID.get(currentEpicID).getSubTasks().isEmpty()) {
-                repository.epicsByID.get(currentEpicID).getSubTasks().remove(subTask);
+            if (!repository.getEpicsMap().get(currentEpicID).getSubTasks().isEmpty()) {
+                repository.getEpicsMap().get(currentEpicID).getSubTasks().remove(subTask);
             }
 
-            SubTask updatedSubTask = repository.subTasksByID.get(subTask.getId());
+            SubTask updatedSubTask = repository.getSubTasksMap().get(subTask.getId());
             updatedSubTask.setName(subTask.getName());
             updatedSubTask.setDescription(subTask.getDescription());
             updatedSubTask.setStatus(subTask.getStatus());
             updatedSubTask.setEpicID(subTask.getEpicID());
 
-            Epic epic = repository.epicsByID.get(updatedSubTask.getEpicID());
+            Epic epic = repository.getEpicsMap().get(updatedSubTask.getEpicID());
 
             ArrayList<SubTask> subTaskList = epic.getSubTasks();
             subTaskList.add(subTask);
@@ -96,14 +96,14 @@ public class SubTaskManager {
     public boolean deleteByID(int ID) {
         boolean isDeleted;
 
-        if (!repository.subTasksByID.containsKey(ID)) {
+        if (!repository.getSubTasksMap().containsKey(ID)) {
             isDeleted = false;
         } else {
-            repository.subTasksByID.remove(ID);
-            Integer currentEpicID = repository.subTasksByID.get(ID).getEpicID();
+            repository.getSubTasksMap().remove(ID);
+            Integer currentEpicID = repository.getSubTasksMap().get(ID).getEpicID();
 
-            if (!repository.epicsByID.get(currentEpicID).getSubTasks().isEmpty()) {
-                repository.epicsByID.get(currentEpicID).getSubTasks().remove(repository.subTasksByID.get(ID));
+            if (!repository.getEpicsMap().get(currentEpicID).getSubTasks().isEmpty()) {
+                repository.getEpicsMap().get(currentEpicID).getSubTasks().remove(repository.getSubTasksMap().get(ID));
             }
             isDeleted = true;
         }

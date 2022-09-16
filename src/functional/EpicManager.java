@@ -18,8 +18,8 @@ public class EpicManager {
     public ArrayList<Epic> findAll() {
         ArrayList<Epic> epicsList = new ArrayList<>();
 
-        for (int i : repository.epicsByID.keySet()) {
-            epicsList.add(repository.epicsByID.get(i));
+        for (int i : repository.getEpicsMap().keySet()) {
+            epicsList.add(repository.getEpicsMap().get(i));
         }
         return epicsList;
     }
@@ -27,21 +27,21 @@ public class EpicManager {
     public boolean deleteAll() {
         boolean isDeleted;
 
-        if (repository.epicsByID.isEmpty()) {
+        if (repository.getEpicsMap().isEmpty()) {
             isDeleted = false;
         } else {
-            repository.subTasksByID.clear();
-            repository.epicsByID.clear();
+            repository.getSubTasksMap().clear();
+            repository.getEpicsMap().clear();
             isDeleted = true;
         }
         return isDeleted;
     }
 
     public Epic findByID(int ID) {
-        if (!repository.epicsByID.containsKey(ID)) {
+        if (!repository.getEpicsMap().containsKey(ID)) {
             return null;
         } else {
-            return repository.epicsByID.get(ID);
+            return repository.getEpicsMap().get(ID);
         }
     }
 
@@ -63,8 +63,8 @@ public class EpicManager {
     public boolean update(Epic epic) {
         boolean isUpdated;
 
-        if (repository.epicsByID.containsKey(epic.getId())) {
-            Epic currentEpic = repository.epicsByID.get(epic.getId());
+        if (repository.getEpicsMap().containsKey(epic.getId())) {
+            Epic currentEpic = repository.getEpicsMap().get(epic.getId());
             currentEpic.setDescription(epic.getDescription());
             currentEpic.setName(epic.getName());
             currentEpic.setSubTasks(epic.getSubTasks());
@@ -86,10 +86,10 @@ public class EpicManager {
     public boolean deleteByID(int ID) {
         boolean isDeleted;
 
-        if (!repository.epicsByID.containsKey(ID)) {
+        if (!repository.getEpicsMap().containsKey(ID)) {
             isDeleted = false;
         } else {
-            repository.epicsByID.remove(ID);
+            repository.getEpicsMap().remove(ID);
             isDeleted = true;
         }
         return isDeleted;

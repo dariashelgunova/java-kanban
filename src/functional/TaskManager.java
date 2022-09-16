@@ -16,8 +16,8 @@ public class TaskManager {
     public ArrayList<Task> findAll() {
         ArrayList<Task> tasksList = new ArrayList<>();
 
-        for (int i : repository.tasksByID.keySet()) {
-            tasksList.add(repository.tasksByID.get(i));
+        for (int i : repository.getTasksMap().keySet()) {
+            tasksList.add(repository.getTasksMap().get(i));
         }
         return tasksList;
     }
@@ -25,20 +25,20 @@ public class TaskManager {
     public boolean deleteAll() {
         boolean isDeleted;
 
-        if (repository.tasksByID.isEmpty()) {
+        if (repository.getTasksMap().isEmpty()) {
             isDeleted = false;
         } else {
-            repository.tasksByID.clear();
+            repository.getTasksMap().clear();
             isDeleted = true;
         }
         return isDeleted;
     }
 
     public Task findByID(int ID) {
-        if (!repository.tasksByID.containsKey(ID)) {
+        if (!repository.getTasksMap().containsKey(ID)) {
             return null;
         } else {
-            return repository.tasksByID.get(ID);
+            return repository.getTasksMap().get(ID);
         }
     }
 
@@ -51,8 +51,8 @@ public class TaskManager {
     public boolean update(Task task) {
         boolean isUpdated;
 
-        if(repository.tasksByID.containsKey(task.getId())) {
-            Task currentTask = repository.tasksByID.get(task.getId());
+        if(repository.getTasksMap().containsKey(task.getId())) {
+            Task currentTask = repository.getTasksMap().get(task.getId());
             currentTask.setDescription(task.getDescription());
             currentTask.setName(task.getName());
             currentTask.setStatus(task.getStatus());
@@ -66,10 +66,10 @@ public class TaskManager {
     public boolean deleteByID(int ID) {
         boolean isDeleted;
 
-        if (!repository.tasksByID.containsKey(ID)) {
+        if (!repository.getTasksMap().containsKey(ID)) {
             isDeleted = false;
         } else {
-            repository.tasksByID.remove(ID);
+            repository.getTasksMap().remove(ID);
             isDeleted = true;
         }
         return isDeleted;

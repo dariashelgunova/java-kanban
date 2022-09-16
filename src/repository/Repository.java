@@ -8,13 +8,13 @@ import java.util.HashMap;
 
 public class Repository {
 
-    int idCounter = 0;
+    private int idCounter = 0;
 
-    public HashMap<Integer, Task> tasksByID = new HashMap<>();
+    private final HashMap<Integer, Task> tasksByID = new HashMap<>();
 
-    public HashMap<Integer, SubTask> subTasksByID = new HashMap<>();
+    private final HashMap<Integer, SubTask> subTasksByID = new HashMap<>();
 
-    public HashMap<Integer, Epic> epicsByID = new HashMap<>();
+    private final HashMap<Integer, Epic> epicsByID = new HashMap<>();
 
     public void saveNewTask(Task task) {
         idCounter += 1;
@@ -34,5 +34,17 @@ public class Repository {
         subTask.setId(idCounter);
         // update?
         subTasksByID.put(idCounter, subTask);
+    }
+
+    public HashMap<Integer, Task> getTasksMap() {
+        return tasksByID;
+    }
+
+    public HashMap<Integer, SubTask> getSubTasksMap() {
+        return subTasksByID;
+    }
+
+    public HashMap<Integer, Epic> getEpicsMap() {
+        return epicsByID;
     }
 }
