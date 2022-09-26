@@ -1,8 +1,5 @@
 package models;
 
-import models.Epic;
-import models.Task;
-
 public class SubTask extends Task {
 
     private int epicID;

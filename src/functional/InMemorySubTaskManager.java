@@ -1,23 +1,22 @@
 package functional;
 
-import models.Epic;
-import models.Status;
-import models.SubTask;
+import models.*;
 import repository.Repository;
 
 import java.util.ArrayList;
 
-public class SubTaskManager {
+public class InMemorySubTaskManager implements TaskManager<SubTask> {
 
     private final Repository repository;
 
-    EpicManager epicManager;
+    InMemoryEpicManager epicManager;
 
-    public SubTaskManager(Repository repository) {
+    public InMemorySubTaskManager(Repository repository) {
         this.repository = repository;
-        this.epicManager = new EpicManager(repository);
+        this.epicManager = new InMemoryEpicManager(repository);
     }
 
+    @Override
     public ArrayList<SubTask> findAll() {
         ArrayList<SubTask> subTasksList = new ArrayList<>();
 
@@ -27,6 +26,7 @@ public class SubTaskManager {
         return subTasksList;
     }
 
+    @Override
     public boolean deleteAll() {
         boolean isDeleted;
 
@@ -42,18 +42,20 @@ public class SubTaskManager {
         return isDeleted;
     }
 
-
+    @Override
     public SubTask findByID(int ID) {
+        InMemoryHistoryManager taskHistory = new InMemoryHistoryManager(repository);
         if (!repository.getSubTasksMap().containsKey(ID)) {
             return null;
         } else {
+           taskHistory.add(repository.getSubTasksMap().get(ID));
             return repository.getSubTasksMap().get(ID);
         }
     }
 
-    public SubTask create(String name, String description, Status status, Integer epicID) {
-        SubTask subTask = new SubTask(name, description, status, epicID);
-        Epic epic = repository.getEpicsMap().get(epicID);
+    @Override
+    public SubTask create(SubTask subTask) {
+        Epic epic = repository.getEpicsMap().get(subTask.getEpicID());
 
         repository.saveNewSubTask(subTask);
 
@@ -63,6 +65,7 @@ public class SubTaskManager {
         return subTask;
     }
 
+    @Override
     public boolean update(SubTask subTask) {
         boolean isUpdated;
 
@@ -93,6 +96,7 @@ public class SubTaskManager {
     }
 
 
+    @Override
     public boolean deleteByID(int ID) {
         boolean isDeleted;
 
@@ -109,5 +113,7 @@ public class SubTaskManager {
         }
         return isDeleted;
     }
+
+
 
 }

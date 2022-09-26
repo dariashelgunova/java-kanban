@@ -4,6 +4,7 @@ import models.Epic;
 import models.SubTask;
 import models.Task;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Repository {
@@ -15,6 +16,7 @@ public class Repository {
     private final HashMap<Integer, SubTask> subTasksByID = new HashMap<>();
 
     private final HashMap<Integer, Epic> epicsByID = new HashMap<>();
+    private Task[] requestsHistory = new Task[10];
 
     public void saveNewTask(Task task) {
         idCounter += 1;
@@ -40,6 +42,14 @@ public class Repository {
         return tasksByID;
     }
 
+    public Task[] getRequestsHistory() {
+        return requestsHistory;
+    }
+
+    public void setRequestsHistory(Task[] requestsHistory) {
+        this.requestsHistory = requestsHistory;
+    }
+
     public HashMap<Integer, SubTask> getSubTasksMap() {
         return subTasksByID;
     }
@@ -47,4 +57,5 @@ public class Repository {
     public HashMap<Integer, Epic> getEpicsMap() {
         return epicsByID;
     }
+
 }

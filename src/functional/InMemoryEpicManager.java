@@ -1,20 +1,19 @@
 package functional;
 
-import models.Epic;
-import models.Status;
-import models.SubTask;
+import models.*;
 import repository.Repository;
 
 import java.util.ArrayList;
 
-public class EpicManager {
+public class InMemoryEpicManager implements TaskManager<Epic> {
 
     private final Repository repository;
 
-    public EpicManager(Repository repository) {
+    public InMemoryEpicManager(Repository repository) {
         this.repository = repository;
     }
 
+    @Override
     public ArrayList<Epic> findAll() {
         ArrayList<Epic> epicsList = new ArrayList<>();
 
@@ -24,6 +23,7 @@ public class EpicManager {
         return epicsList;
     }
 
+    @Override
     public boolean deleteAll() {
         boolean isDeleted;
 
@@ -37,19 +37,21 @@ public class EpicManager {
         return isDeleted;
     }
 
+    @Override
     public Epic findByID(int ID) {
+        InMemoryHistoryManager taskHistory = new InMemoryHistoryManager(repository);
         if (!repository.getEpicsMap().containsKey(ID)) {
             return null;
         } else {
+            taskHistory.add(repository.getEpicsMap().get(ID));
             return repository.getEpicsMap().get(ID);
         }
     }
 
-    public Epic create(String name, String description) {
-        ArrayList<SubTask> subTaskList = new ArrayList<>();
-        Epic epic = new Epic(name, description, subTaskList);
+    @Override
+    public Epic create(Epic epic) {
 
-        if (subTaskList.isEmpty() || isNew(epic)) {
+        if (epic.getSubTasks().isEmpty() || isNew(epic)) {
             epic.setStatus(Status.NEW);
         } else if (isDone(epic)) {
             epic.setStatus(Status.DONE);
@@ -60,6 +62,7 @@ public class EpicManager {
         return epic;
     }
 
+    @Override
     public boolean update(Epic epic) {
         boolean isUpdated;
 
@@ -83,6 +86,7 @@ public class EpicManager {
         return isUpdated;
     }
 
+    @Override
     public boolean deleteByID(int ID) {
         boolean isDeleted;
 
