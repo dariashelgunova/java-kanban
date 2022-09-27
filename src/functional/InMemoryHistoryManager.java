@@ -12,7 +12,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public Task[] add(Task task) {
+    public void add(Task task) {
         Task[] currentTaskArray = repository.getRequestsHistory();
         if (currentTaskArray[currentTaskArray.length - 1] == null) {
             for (int i = 0; i < currentTaskArray.length; i++) {
@@ -27,7 +27,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             }
             currentTaskArray[9] = task;
         }
-        return currentTaskArray;
     }
 
 

@@ -9,7 +9,7 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
 
     private final Repository repository;
 
-    InMemoryEpicManager epicManager;
+    private final InMemoryEpicManager epicManager;
 
     public InMemorySubTaskManager(Repository repository) {
         this.repository = repository;

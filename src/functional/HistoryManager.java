@@ -4,7 +4,7 @@ import models.Task;
 
 public interface HistoryManager {
 
-    Task[] add(Task task);
+    void add(Task task);
 
     Task[] getHistory();
 
