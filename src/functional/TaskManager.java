@@ -4,16 +4,16 @@ import java.util.ArrayList;
 
 public interface TaskManager<T> {
 
-    public ArrayList<T> findAll();
+    ArrayList<T> findAll();
 
-    public boolean deleteAll();
+    boolean deleteAll();
 
-    public T findByID(int ID);
+    T findByID(int ID);
 
-    public T create(T object);
+    T create(T object);
 
-    public boolean update(T object);
+    boolean update(T object);
 
-    public boolean deleteByID(int ID);
+    boolean deleteByID(int ID);
 
 }
