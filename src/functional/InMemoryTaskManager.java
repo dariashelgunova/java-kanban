@@ -4,14 +4,18 @@ import models.Task;
 import repository.Repository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class InMemoryTaskManager implements TaskManager<Task> {
     private final Repository repository;
+    private final InMemoryHistoryManager taskHistory;
 
 
 
-    public InMemoryTaskManager(Repository repository) {
+    public InMemoryTaskManager(Repository repository, InMemoryHistoryManager taskHistory) {
         this.repository = repository;
+        this.taskHistory = taskHistory;
     }
 
     @Override
@@ -25,26 +29,22 @@ public class InMemoryTaskManager implements TaskManager<Task> {
     }
 
     @Override
-    public boolean deleteAll() {
-        boolean isDeleted;
+    public void deleteAll() {
+        Set<Integer> ids = new HashSet<>(repository.getTasksMap().keySet());
 
-        if (repository.getTasksMap().isEmpty()) {
-            isDeleted = false;
-        } else {
-            repository.getTasksMap().clear();
-            isDeleted = true;
+        for (Integer id : ids) {
+            deleteById(id);
         }
-        return isDeleted;
     }
 
     @Override
-    public Task findByID(int ID) {
-        InMemoryHistoryManager taskHistory = new InMemoryHistoryManager(repository);
-        if (!repository.getTasksMap().containsKey(ID)) {
+    public Task findById(int id) {
+
+        if (!repository.getTasksMap().containsKey(id)) {
             return null;
         } else {
-            taskHistory.add(repository.getTasksMap().get(ID));
-            return repository.getTasksMap().get(ID);
+            taskHistory.add(repository.getTasksMap().get(id));
+            return repository.getTasksMap().get(id);
         }
     }
 
@@ -71,13 +71,13 @@ public class InMemoryTaskManager implements TaskManager<Task> {
     }
 
     @Override
-    public boolean deleteByID(int ID) {
+    public boolean deleteById(int id) {
         boolean isDeleted;
-
-        if (!repository.getTasksMap().containsKey(ID)) {
+        if (!repository.getTasksMap().containsKey(id)) {
             isDeleted = false;
         } else {
-            repository.getTasksMap().remove(ID);
+            repository.getTasksMap().remove(id);
+            taskHistory.remove(id);
             isDeleted = true;
         }
         return isDeleted;

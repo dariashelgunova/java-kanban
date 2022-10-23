@@ -1,4 +1,6 @@
-import functional.*;
+import functional.HistoryManager;
+import functional.Managers;
+import functional.TaskManager;
 import models.*;
 
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ public class Main {
         historyManager = managers.getManagersForHistory();
 
         runFirstTest();
+
     }
 
     public static void runFirstTest() {
@@ -35,10 +38,14 @@ public class Main {
         SubTask currentSubTask2 = new SubTask("CleanTheBathroom", "CleanTheBathroomProperly",
                 Status.IN_PROGRESS, currentEpic.getId());
         subTaskManager.create(currentSubTask2);
+        subTaskManager.findById(currentSubTask2.getId());
 
-        System.out.println(epicManager.findByID(currentEpic.getId()));
+        epicManager.findById(currentEpic.getId()); // 1
         System.out.println(currentSubTask1);
         System.out.println(currentSubTask2);
+
+        System.out.println("History 1: one subtask + one epic ");
+        System.out.println(historyManager.getHistory());
 
         System.out.println("Creating epic 'BuyProducts' with 1 subtask:");
         ArrayList<SubTask> newSubTaskList = new ArrayList<>();
@@ -48,25 +55,44 @@ public class Main {
         SubTask newSubTask1 = new SubTask("BuyBread", "BuyFreshBreadForToasts", Status.DONE,
                 newEpic.getId());
         subTaskManager.create(newSubTask1);
-        System.out.println(epicManager.findByID(newEpic.getId()));
+        epicManager.findById(newEpic.getId()); // 1
         System.out.println(newEpic.getSubTasks());
+        epicManager.findById(currentEpic.getId()); // 2
+        subTaskManager.findById(newSubTask1.getId());
+        subTaskManager.findById(currentSubTask2.getId());
+
+        System.out.println("History 2: two epics + 2 subtasks ");
+        System.out.println(historyManager.getHistory());
+
 
         System.out.println("Updating status:");
         newSubTask1.setStatus(Status.IN_PROGRESS);
         subTaskManager.update(newSubTask1);
         System.out.println(newEpic);
+        epicManager.findById(newEpic.getId()); // 2
 
-        System.out.println("Deleting subTasks:");
-        subTaskManager.deleteAll();
-        System.out.println(epicManager.findAll());
+        System.out.println("History 3: two epics + 2 subtasks ");
+        System.out.println(historyManager.getHistory());
+
+        System.out.println("Deleting epics:");
+        epicManager.deleteAll();
+
+        System.out.println("History 4: null");
+        System.out.println(historyManager.getHistory());
 
         System.out.println("Creating a models.Task:");
         Task task = new Task("Test", "TestAllYourMethods", Status.NEW);
         taskManager.create(task);
         System.out.println(task);
-        System.out.println(taskManager.findByID(task.getId()));
+        taskManager.findById(task.getId()); // 1
 
-        historyManager.getHistory();
+        System.out.println("History 5: task");
+        System.out.println(historyManager.getHistory());
+
+        taskManager.deleteById(task.getId());
+
+        System.out.println("History 6: null");
+        System.out.println(historyManager.getHistory());
     }
 
 }

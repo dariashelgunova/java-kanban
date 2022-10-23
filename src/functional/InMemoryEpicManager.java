@@ -4,13 +4,17 @@ import models.*;
 import repository.Repository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class InMemoryEpicManager implements TaskManager<Epic> {
 
     private final Repository repository;
+    private final InMemoryHistoryManager taskHistory;
 
-    public InMemoryEpicManager(Repository repository) {
+    public InMemoryEpicManager(Repository repository, InMemoryHistoryManager taskHistory) {
         this.repository = repository;
+        this.taskHistory = taskHistory;
     }
 
     @Override
@@ -24,27 +28,20 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
     }
 
     @Override
-    public boolean deleteAll() {
-        boolean isDeleted;
-
-        if (repository.getEpicsMap().isEmpty()) {
-            isDeleted = false;
-        } else {
-            repository.getSubTasksMap().clear();
-            repository.getEpicsMap().clear();
-            isDeleted = true;
+    public void deleteAll() {
+        Set<Integer> ids = new HashSet<>(repository.getEpicsMap().keySet());
+        for (Integer id : ids) {
+            deleteById(id);
         }
-        return isDeleted;
     }
 
     @Override
-    public Epic findByID(int ID) {
-        InMemoryHistoryManager taskHistory = new InMemoryHistoryManager(repository);
-        if (!repository.getEpicsMap().containsKey(ID)) {
+    public Epic findById(int id) {
+        if (!repository.getEpicsMap().containsKey(id)) {
             return null;
         } else {
-            taskHistory.add(repository.getEpicsMap().get(ID));
-            return repository.getEpicsMap().get(ID);
+            taskHistory.add(repository.getEpicsMap().get(id));
+            return repository.getEpicsMap().get(id);
         }
     }
 
@@ -87,13 +84,23 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
     }
 
     @Override
-    public boolean deleteByID(int ID) {
+    public boolean deleteById(int id) {
         boolean isDeleted;
+        ArrayList<SubTask> subTaskArrayList = repository.getEpicsMap().get(id).getSubTasks();
 
-        if (!repository.getEpicsMap().containsKey(ID)) {
+        if (!repository.getEpicsMap().containsKey(id)) {
             isDeleted = false;
         } else {
-            repository.getEpicsMap().remove(ID);
+            Set<Integer> subTasksIds = new HashSet<>();
+            for (SubTask subTask : subTaskArrayList) {
+                subTasksIds.add(subTask.getId());
+            }
+            for (Integer subTaskId : subTasksIds) {
+                taskHistory.remove(subTaskId);
+                repository.getSubTasksMap().remove(subTaskId);
+            }
+            repository.getEpicsMap().remove(id);
+            taskHistory.remove(id);
             isDeleted = true;
         }
         return isDeleted;

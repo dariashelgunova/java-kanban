@@ -1,39 +1,119 @@
 package functional;
 
+import models.CustomNode;
 import models.Task;
-import repository.Repository;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final Repository repository;
+    private final CustomLinkedList taskHistory = new CustomLinkedList();
+    private final HashMap<Integer, CustomNode> historyRequestHashMap = new HashMap<>();
 
-    public InMemoryHistoryManager(Repository repository) {
-        this.repository = repository;
-    }
 
     @Override
     public void add(Task task) {
-        Task[] currentTaskArray = repository.getRequestsHistory();
-        if (currentTaskArray[currentTaskArray.length - 1] == null) {
-            for (int i = 0; i < currentTaskArray.length; i++) {
-                if (currentTaskArray[i] == null) {
-                    currentTaskArray[i] = task;
-                    break;
-                }
-            }
-        } else { // если все поля заполнены, добавляем на 9 позицию, 9-8, 8-7, 7-6, 6-5, 5-4, 4-3, 3-2, 2-1, 1-0,
-            for (int i = 9; i >= 1; i--) {
-                currentTaskArray[i-1] = currentTaskArray[i];
-            }
-            currentTaskArray[9] = task;
+        int id = task.getId();
+        if (taskHistory.getSize() == 10) {
+            taskHistory.removeNode(taskHistory.getFirst());
         }
+        if (historyRequestHashMap.containsKey(id)) {
+            taskHistory.removeNode(historyRequestHashMap.get(id));
+            historyRequestHashMap.remove(id);
+        }
+        taskHistory.linkLast(task);
+        historyRequestHashMap.put(id, taskHistory.getLast());
     }
 
 
     @Override
-    public Task[] getHistory() {
-        return repository.getRequestsHistory();
+    public ArrayList<Task> getHistory() {
+        return taskHistory.getTasks();
     }
 
+    @Override
+    public void remove(int id) {
+        CustomNode currentNode = historyRequestHashMap.get(id);
+        taskHistory.removeNode(currentNode);
+        historyRequestHashMap.remove(id);
+    }
+
+
+    private class CustomLinkedList {
+        private int size = 0;
+        private CustomNode first;
+        private CustomNode last;
+
+        void linkLast(Task task) {
+            CustomNode lastNode = last;
+            CustomNode newNode = new CustomNode(task, null, lastNode);
+            last = newNode;
+            if (lastNode == null)
+                first = newNode;
+            else
+                lastNode.setNext(newNode);
+            size++;
+        }
+
+        ArrayList<Task> getTasks() {
+            ArrayList<Task> newList = new ArrayList<>();
+            CustomNode currentNode = first;
+            if (size == 0) {
+                return newList;
+            }
+            while (currentNode != null) {
+                newList.add(currentNode.getValue());
+                currentNode = currentNode.getNext();
+            }
+            return newList;
+        }
+
+        void removeNode(CustomNode node) {
+            if (node == null) {
+                return;
+            }
+            CustomNode nextNode = node.getNext();
+            CustomNode previousNode = node.getPrevious();
+            if (size == 1) {
+                first = null;
+                last = null;
+            } else if (node.equals(last)) {
+                previousNode.setNext(null);
+                last = previousNode;
+            } else if (node.equals(first)) {
+                nextNode.setPrevious(null);
+                first = nextNode;
+            } else {
+                nextNode.setPrevious(previousNode);
+                previousNode.setNext(nextNode);
+            }
+            size--;
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public void setSize(int size) {
+            this.size = size;
+        }
+
+        public CustomNode getFirst() {
+            return first;
+        }
+
+        public void setFirst(CustomNode first) {
+            this.first = first;
+        }
+
+        public CustomNode getLast() {
+            return last;
+        }
+
+        public void setLast(CustomNode last) {
+            this.last = last;
+        }
+    }
 
 }

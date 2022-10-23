@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Objects;
+
 public class SubTask extends Task {
 
     private int epicID;
@@ -25,5 +27,18 @@ public class SubTask extends Task {
 
     public void setEpicID(int epicID) {
         this.epicID = epicID;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SubTask subTask = (SubTask) o;
+        return epicID == subTask.epicID;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(epicID);
     }
 }

@@ -1,19 +1,22 @@
 package functional;
 
+import models.Task;
+
 import java.util.ArrayList;
 
-public interface TaskManager<T> {
+public interface TaskManager<T extends Task> {
 
     ArrayList<T> findAll();
 
-    boolean deleteAll();
+    void deleteAll();
 
-    T findByID(int ID);
+    T findById(int ID);
 
     T create(T object);
 
     boolean update(T object);
 
-    boolean deleteByID(int ID);
+    boolean deleteById(int ID);
 
 }
+

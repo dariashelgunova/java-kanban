@@ -4,16 +4,20 @@ import models.*;
 import repository.Repository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class InMemorySubTaskManager implements TaskManager<SubTask> {
 
     private final Repository repository;
+    private final InMemoryHistoryManager taskHistory;
 
     private final InMemoryEpicManager epicManager;
 
-    public InMemorySubTaskManager(Repository repository) {
+    public InMemorySubTaskManager(Repository repository, InMemoryHistoryManager taskHistory) {
         this.repository = repository;
-        this.epicManager = new InMemoryEpicManager(repository);
+        this.epicManager = new InMemoryEpicManager(repository, taskHistory);
+        this.taskHistory = taskHistory;
     }
 
     @Override
@@ -27,29 +31,23 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
     }
 
     @Override
-    public boolean deleteAll() {
-        boolean isDeleted;
-
-        if (repository.getSubTasksMap().isEmpty()) {
-            isDeleted = false;
-        } else {
-            repository.getSubTasksMap().clear();
-            isDeleted = true;
-            for (Epic epic : repository.getEpicsMap().values()) {
-                epic.getSubTasks().clear();
-            }
+    public void deleteAll() {
+        Set<Integer> ids = new HashSet<>(repository.getSubTasksMap().keySet());
+        
+        for (Integer id : ids) {
+            deleteById(id);
         }
-        return isDeleted;
     }
 
+
     @Override
-    public SubTask findByID(int ID) {
-        InMemoryHistoryManager taskHistory = new InMemoryHistoryManager(repository);
-        if (!repository.getSubTasksMap().containsKey(ID)) {
+    public SubTask findById(int id) {
+
+        if (!repository.getSubTasksMap().containsKey(id)) {
             return null;
         } else {
-           taskHistory.add(repository.getSubTasksMap().get(ID));
-            return repository.getSubTasksMap().get(ID);
+           taskHistory.add(repository.getSubTasksMap().get(id));
+            return repository.getSubTasksMap().get(id);
         }
     }
 
@@ -97,17 +95,18 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
 
 
     @Override
-    public boolean deleteByID(int ID) {
+    public boolean deleteById(int id) {
         boolean isDeleted;
 
-        if (!repository.getSubTasksMap().containsKey(ID)) {
+        if (!repository.getSubTasksMap().containsKey(id)) {
             isDeleted = false;
         } else {
-            repository.getSubTasksMap().remove(ID);
-            Integer currentEpicID = repository.getSubTasksMap().get(ID).getEpicID();
+            Integer currentEpicID = repository.getSubTasksMap().get(id).getEpicID();
+            repository.getSubTasksMap().remove(id);
 
             if (!repository.getEpicsMap().get(currentEpicID).getSubTasks().isEmpty()) {
-                repository.getEpicsMap().get(currentEpicID).getSubTasks().remove(repository.getSubTasksMap().get(ID));
+                repository.getEpicsMap().get(currentEpicID).getSubTasks().remove(repository.getSubTasksMap().get(id));
+                taskHistory.remove(id);
             }
             isDeleted = true;
         }

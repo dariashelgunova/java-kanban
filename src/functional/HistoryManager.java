@@ -2,10 +2,15 @@ package functional;
 
 import models.Task;
 
+import java.util.ArrayList;
+
 public interface HistoryManager {
 
     void add(Task task);
 
-    Task[] getHistory();
+    void remove(int id);
+
+    ArrayList<Task> getHistory();
+
 
 }
