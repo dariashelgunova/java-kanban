@@ -1,6 +1,7 @@
 package functional;
 
 import models.*;
+import org.jetbrains.annotations.NotNull;
 import repository.Repository;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
     }
 
     @Override
-    public Epic create(Epic epic) {
+    public Epic create(@NotNull Epic epic) {
 
         if (epic.getSubTasks().isEmpty() || isNew(epic)) {
             epic.setStatus(Status.NEW);
@@ -60,7 +61,7 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
     }
 
     @Override
-    public boolean update(Epic epic) {
+    public boolean update(@NotNull Epic epic) {
         boolean isUpdated;
 
         if (repository.getEpicsMap().containsKey(epic.getId())) {
@@ -106,11 +107,11 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
         return isDeleted;
     }
 
-    public ArrayList<SubTask> findSubTasksByEpic(Epic epic) {
+    public ArrayList<SubTask> findSubTasksByEpic(@NotNull Epic epic) {
         return epic.getSubTasks();
     }
 
-    private boolean isNew(Epic epic) {
+    private boolean isNew(@NotNull Epic epic) {
         ArrayList<SubTask> subTaskArrayList = epic.getSubTasks();
 
         for(SubTask subTask : subTaskArrayList) {
@@ -121,7 +122,7 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
         return true;
     }
 
-    private boolean isDone(Epic epic) {
+    private boolean isDone(@NotNull Epic epic) {
         ArrayList<SubTask> subTaskArrayList = epic.getSubTasks();
 
         for(SubTask subTask : subTaskArrayList) {

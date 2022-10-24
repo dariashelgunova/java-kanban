@@ -1,6 +1,7 @@
 package functional;
 
 import models.Task;
+import org.jetbrains.annotations.NotNull;
 import repository.Repository;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class InMemoryTaskManager implements TaskManager<Task> {
     }
 
     @Override
-    public boolean update(Task task) {
+    public boolean update(@NotNull Task task) {
         boolean isUpdated;
 
         if(repository.getTasksMap().containsKey(task.getId())) {

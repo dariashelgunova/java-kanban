@@ -2,6 +2,7 @@ package functional;
 
 import models.CustomNode;
 import models.Task;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         private CustomNode first;
         private CustomNode last;
 
-        void linkLast(Task task) {
+        private void linkLast(@NotNull Task task) {
             CustomNode lastNode = last;
             CustomNode newNode = new CustomNode(task, null, lastNode);
             last = newNode;
@@ -56,7 +57,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             size++;
         }
 
-        ArrayList<Task> getTasks() {
+        private @NotNull ArrayList<Task> getTasks() {
             ArrayList<Task> newList = new ArrayList<>();
             CustomNode currentNode = first;
             if (size == 0) {
@@ -69,7 +70,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             return newList;
         }
 
-        void removeNode(CustomNode node) {
+        private void removeNode(CustomNode node) {
             if (node == null) {
                 return;
             }

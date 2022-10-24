@@ -1,6 +1,7 @@
 package functional;
 
 import models.*;
+import org.jetbrains.annotations.NotNull;
 import repository.Repository;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
     }
 
     @Override
-    public SubTask create(SubTask subTask) {
+    public SubTask create(@NotNull SubTask subTask) {
         Epic epic = repository.getEpicsMap().get(subTask.getEpicID());
 
         repository.saveNewSubTask(subTask);
@@ -64,7 +65,7 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
     }
 
     @Override
-    public boolean update(SubTask subTask) {
+    public boolean update(@NotNull SubTask subTask) {
         boolean isUpdated;
 
         if (repository.getSubTasksMap().containsKey(subTask.getId())) {
