@@ -30,6 +30,14 @@ public class Repository {
         epicsByID.put(idCounter, epic);
     }
 
+    public int getIdCounter() {
+        return idCounter;
+    }
+
+    public void setIdCounter(int idCounter) {
+        this.idCounter = idCounter;
+    }
+
     public void saveNewSubTask(SubTask subTask) {
         idCounter += 1;
         subTask.setId(idCounter);

@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class InMemorySubTaskManager implements TaskManager<SubTask> {
 
-    private final Repository repository;
-    private final InMemoryHistoryManager taskHistory;
+    protected final Repository repository;
+    protected final InMemoryHistoryManager taskHistory;
 
     private final InMemoryEpicManager epicManager;
 
@@ -53,7 +53,7 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
     }
 
     @Override
-    public SubTask create(@NotNull SubTask subTask) {
+    public void create(@NotNull SubTask subTask) {
         Epic epic = repository.getEpicsMap().get(subTask.getEpicID());
 
         repository.saveNewSubTask(subTask);
@@ -61,7 +61,6 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
         ArrayList<SubTask> subTaskList = epic.getSubTasks();
         subTaskList.add(subTask);
         epicManager.update(epic);
-        return subTask;
     }
 
     @Override
@@ -113,6 +112,7 @@ public class InMemorySubTaskManager implements TaskManager<SubTask> {
         }
         return isDeleted;
     }
+
 
 
 

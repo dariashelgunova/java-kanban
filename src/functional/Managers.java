@@ -3,10 +3,16 @@ package functional;
 import models.TaskType;
 import repository.Repository;
 
-public class Managers {
+import java.io.File;
 
-    private final Repository repository = new Repository();
-    private final InMemoryHistoryManager taskHistory = new InMemoryHistoryManager();
+public class Managers {
+    private final Repository repository;
+    private final InMemoryHistoryManager taskHistory;
+
+    private Managers(Repository repository, InMemoryHistoryManager historyManager) {
+        this.repository = repository;
+        this.taskHistory = historyManager;
+    }
 
     public TaskManager getManagerForTaskType(TaskType type) {
         switch(type) {
@@ -22,7 +28,6 @@ public class Managers {
     public HistoryManager getManagersForHistory() {
         return taskHistory;
     }
-
 
     public Repository getRepository() {
         return repository;

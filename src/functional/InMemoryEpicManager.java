@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class InMemoryEpicManager implements TaskManager<Epic> {
 
-    private final Repository repository;
-    private final InMemoryHistoryManager taskHistory;
+    protected final Repository repository;
+    protected final InMemoryHistoryManager taskHistory;
 
     public InMemoryEpicManager(Repository repository, InMemoryHistoryManager taskHistory) {
         this.repository = repository;
@@ -47,7 +47,7 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
     }
 
     @Override
-    public Epic create(@NotNull Epic epic) {
+    public void create(@NotNull Epic epic) {
 
         if (epic.getSubTasks().isEmpty() || isNew(epic)) {
             epic.setStatus(Status.NEW);
@@ -57,7 +57,6 @@ public class InMemoryEpicManager implements TaskManager<Epic> {
             epic.setStatus(Status.IN_PROGRESS);
         }
         repository.saveNewEpic(epic);
-        return epic;
     }
 
     @Override

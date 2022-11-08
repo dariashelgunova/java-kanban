@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class InMemoryTaskManager implements TaskManager<Task> {
-    private final Repository repository;
-    private final InMemoryHistoryManager taskHistory;
+    protected final Repository repository;
+    protected final InMemoryHistoryManager taskHistory;
 
 
 
@@ -50,9 +50,8 @@ public class InMemoryTaskManager implements TaskManager<Task> {
     }
 
     @Override
-    public Task create(Task task) {
+    public void create(Task task) {
         repository.saveNewTask(task);
-        return task;
     }
 
     @Override

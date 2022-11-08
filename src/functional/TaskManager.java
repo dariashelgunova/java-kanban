@@ -12,7 +12,7 @@ public interface TaskManager<T extends Task> {
 
     T findById(int ID);
 
-    T create(T object);
+    void create(T object);
 
     boolean update(T object);
 

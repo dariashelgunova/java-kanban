@@ -3,10 +3,10 @@ package models;
 import java.util.Objects;
 
 public class Task {
-    private Integer id;
-    private String name;
-    private String description;
-    private Status status;
+    protected Integer id;
+    protected String name;
+    protected String description;
+    protected Status status;
 
 
     public Task(String name, String description, Status status) {
@@ -49,12 +49,8 @@ public class Task {
 
     @Override
     public String toString() {
-        return "models.Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                '}';
+        return "" + id + "," + TaskType.TASK + "," + name + "," +
+                status + "," + description + ",";
     }
 
     @Override
@@ -69,4 +65,6 @@ public class Task {
     public int hashCode() {
         return Objects.hash(id, name, description, status);
     }
+
+
 }
