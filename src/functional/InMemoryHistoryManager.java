@@ -116,5 +116,4 @@ public class InMemoryHistoryManager implements HistoryManager {
             this.last = last;
         }
     }
-
 }

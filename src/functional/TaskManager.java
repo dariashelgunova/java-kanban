@@ -1,22 +1,49 @@
 package functional;
 
+import models.Epic;
+import models.SubTask;
 import models.Task;
 
 import java.util.ArrayList;
 
-public interface TaskManager<T extends Task> {
+public interface TaskManager {
 
-    ArrayList<T> findAll();
+    //tasks
+    ArrayList<Task> findAllTasks();
 
-    void deleteAll();
+    void deleteAllTasks();
 
-    T findById(int ID);
+    Task findTaskById(int ID);
 
-    void create(T object);
+    void createTask(Task object);
 
-    boolean update(T object);
+    boolean updateTask(Task object);
 
-    boolean deleteById(int ID);
+    boolean deleteTaskById(int ID);
 
+    //epics
+    ArrayList<Epic> findAllEpics();
+
+    void deleteAllEpics();
+
+    Task findEpicById(int ID);
+
+    void createEpic(Epic object);
+
+    boolean updateEpic(Epic object);
+
+    boolean deleteEpicById(int ID);
+
+    //subTasks
+    ArrayList<SubTask> findAllSubTasks();
+
+    void deleteAllSubTasks();
+
+    Task findSubTaskById(int ID);
+
+    void createSubTask(SubTask object);
+
+    boolean updateSubTask(SubTask object);
+
+    boolean deleteSubTaskById(int ID);
 }
-
