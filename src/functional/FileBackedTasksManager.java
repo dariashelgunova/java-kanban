@@ -5,6 +5,7 @@ import models.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public FileBackedTasksManager(HistoryManager historyManager, HashMap<Integer, Task> tasksStorage, File file) {
         super(historyManager, tasksStorage);
         this.file = file;
-        idCounter = Collections.max(tasksStorage.keySet()) + 1;
+        if (!tasksStorage.isEmpty()) idCounter = Collections.max(tasksStorage.keySet()) + 1;
     }
 
     //tasks
@@ -29,9 +30,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return taskArrayList;
     }
     @Override
-    public void deleteAllTasks() {
+    public boolean deleteAllTasks() {
         super.deleteAllTasks();
         save();
+        return super.deleteAllTasks();
     }
 
     @Override
@@ -71,9 +73,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return subTaskArrayList;
     }
     @Override
-    public void deleteAllSubTasks() {
+    public boolean deleteAllSubTasks() {
         super.deleteAllSubTasks();
         save();
+        return super.deleteAllSubTasks();
     }
 
 
@@ -114,9 +117,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return epicArrayList;
     }
     @Override
-    public void deleteAllEpics() {
+    public boolean deleteAllEpics() {
         super.deleteAllEpics();
         save();
+        return super.deleteAllEpics();
     }
 
     @Override
@@ -148,7 +152,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public void save() {
         try (FileWriter csvWriter = new FileWriter(file)) {
-            csvWriter.write("id,type,name,status,description,epic");
+            csvWriter.write("id,type,name,status,description,startTime,duration,endTime,epic");
             for (Task task : tasksStorage.values()) {
                 csvWriter.write("\n" + task.toString());
             }
@@ -159,9 +163,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
 
-    static String historyToString(HistoryManager manager) {
+    public static String historyToString(HistoryManager manager) {
         StringBuilder stringBuilder = new StringBuilder();
-        int id = 0;
+        int id;
         for (Task task : manager.getHistory()) {
             id = task.getId();
             stringBuilder.append(id);
@@ -195,12 +199,14 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 tasksFromFile.put(task.getId(), task);
             }
             addSubTasksToEpics(tasksFromFile);
+            setEpicsTime(tasksFromFile);
         } catch (IOException exception) {
             throw new ManagerSaveException("Возникла ошибка при чтении файла!");
         }
         return new FileBackedTasksManager(historyManager, tasksFromFile, file);
     }
 
+    // "id,type,name,status,description,startTime,duration,endTime,epic"
     private static Task fromString(@NotNull String value) {
         String[] data = value.split(",");
         int id = Integer.parseInt(data[0]);
@@ -208,9 +214,11 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         String name = data[2];
         Status status = Status.valueOf(data[3]);
         String description = data[4];
+        Instant startTime = Instant.parse(data[5]);
+        int duration = Integer.parseInt(data[6]);
         if (TaskType.SUBTASK.equals(type))  {
-            int epicId = Integer.parseInt(data[5]);
-            Task subTask = new SubTask(name, description, status, epicId);
+            int epicId = Integer.parseInt(data[8]);
+            Task subTask = new SubTask(name, description, status, epicId, duration, startTime);
             subTask.setId(id);
             return subTask;
         } else if (TaskType.EPIC.equals(type)) {
@@ -220,12 +228,21 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             epic.setId(id);
             return epic;
         } else {
-            Task task = new Task(name, description, status);
+            Task task = new Task(name, description, status, duration, startTime);
             task.setId(id);
             return task;
         }
     }
 
+    private static void setEpicsTime(@NotNull HashMap<Integer, Task> tasksHashMap) {
+        for (Task task : tasksHashMap.values()) {
+            if (task instanceof Epic) {
+                task.getStartTime();
+                task.getDuration();
+                task.getEndTime();
+            }
+        }
+    }
 
     private static void addSubTasksToEpics (@NotNull HashMap<Integer, Task> tasksHashMap) {
         for (Task task : tasksHashMap.values()) {
@@ -248,10 +265,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
     }
 
-
     public HistoryManager getHistoryManager() {
         return historyManager;
     }
 }
-
-

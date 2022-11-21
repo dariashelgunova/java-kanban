@@ -11,7 +11,7 @@ public interface TaskManager {
     //tasks
     ArrayList<Task> findAllTasks();
 
-    void deleteAllTasks();
+    boolean deleteAllTasks();
 
     Task findTaskById(int ID);
 
@@ -24,7 +24,7 @@ public interface TaskManager {
     //epics
     ArrayList<Epic> findAllEpics();
 
-    void deleteAllEpics();
+    boolean deleteAllEpics();
 
     Task findEpicById(int ID);
 
@@ -37,7 +37,7 @@ public interface TaskManager {
     //subTasks
     ArrayList<SubTask> findAllSubTasks();
 
-    void deleteAllSubTasks();
+    boolean deleteAllSubTasks();
 
     Task findSubTaskById(int ID);
 

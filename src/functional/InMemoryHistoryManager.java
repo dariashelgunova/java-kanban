@@ -41,7 +41,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
 
-    private class CustomLinkedList {
+   private static class CustomLinkedList {
         private int size = 0;
         private CustomNode first;
         private CustomNode last;

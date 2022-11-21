@@ -6,14 +6,15 @@ import models.SubTask;
 import models.Task;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 
 public class InMemoryTasksManager implements TaskManager {
-    protected final HashMap<Integer, Task> tasksStorage;
-    protected final HistoryManager historyManager;
+    protected HashMap<Integer, Task> tasksStorage;
+    protected HistoryManager historyManager;
+
+    protected final TreeSet<Task> tasksByPriority = new TreeSet<>(Comparator.comparing(Task::getStartTime)
+            .thenComparing(Task::getId));
 
     protected int idCounter = 0;
 
@@ -21,6 +22,38 @@ public class InMemoryTasksManager implements TaskManager {
         this.historyManager = historyManager;
         this.tasksStorage = tasksStorage;
     }
+
+    protected boolean checkIfAvailable(@NotNull Task task) {
+        return tasksByPriority.stream()
+                .noneMatch(t -> !t.getStartTime().isBefore(task.getEndTime()) ||
+                        !task.getStartTime().isBefore(t.getEndTime()));
+    }
+
+    public TreeSet<Task> getPrioritizedTasks() {
+        return this.tasksByPriority;
+    }
+
+    /* actionId:
+    0 = add;
+    1 = update;
+    2 = delete
+     */
+    protected void updatePrioritySet(@NotNull Task task, int actionId) {
+       if (actionId == 0 && tasksByPriority.isEmpty()) {
+           tasksByPriority.add(task);
+       } else if (actionId == 0 && !tasksStorage.containsValue(task) && checkIfAvailable(task)) {
+           tasksByPriority.add(task);
+       } else if (actionId == 1) {
+           int taskId = task.getId();
+           tasksByPriority.removeIf(currentTask -> currentTask.getId() == taskId);
+           if (checkIfAvailable(task)) {
+               tasksByPriority.add(task);
+           }
+       } else if (actionId == 2) {
+           tasksByPriority.remove(task);
+       }
+    }
+
 
     public void setIdCounter(int idCounter) {
         this.idCounter = idCounter;
@@ -40,17 +73,25 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllTasks() {
+    public boolean deleteAllTasks() {
         Set<Integer> ids = new HashSet<>();
+        boolean isDeleted = true;
 
-        for (Task task : tasksStorage.values()) {
-            if (!(task instanceof Epic) && !(task instanceof SubTask)) {
-                ids.add(task.getId());
+        if (!tasksStorage.isEmpty()) {
+            for (Task task : tasksStorage.values()) {
+                if (!(task instanceof Epic) && !(task instanceof SubTask)) {
+                    ids.add(task.getId());
+                } else {
+                    isDeleted = false;
+                }
             }
+            for (Integer id : ids) {
+                isDeleted = deleteTaskById(id);
+            }
+        } else {
+            isDeleted = false;
         }
-        for (Integer id : ids) {
-            deleteTaskById(id);
-        }
+        return isDeleted;
     }
 
     @Override
@@ -69,18 +110,22 @@ public class InMemoryTasksManager implements TaskManager {
         idCounter += 1;
         task.setId(idCounter);
         tasksStorage.put(idCounter, task);
+        updatePrioritySet(task,0);
     }
 
     @Override
     public boolean updateTask(@NotNull Task task) {
         boolean isUpdated;
 
-        if(tasksStorage.containsKey(task.getId())) {
+        if (tasksStorage.containsKey(task.getId())) {
             Task currentTask = tasksStorage.get(task.getId());
             currentTask.setDescription(task.getDescription());
             currentTask.setName(task.getName());
             currentTask.setStatus(task.getStatus());
+            currentTask.setStartTime(task.getStartTime());
+            currentTask.setDuration(task.getDuration());
             isUpdated = true;
+            updatePrioritySet(task,1);
         } else {
             isUpdated = false;
         }
@@ -93,6 +138,7 @@ public class InMemoryTasksManager implements TaskManager {
         if (!tasksStorage.containsKey(id)) {
             isDeleted = false;
         } else {
+            updatePrioritySet(tasksStorage.get(id), 2);
             tasksStorage.remove(id);
             historyManager.remove(id);
             isDeleted = true;
@@ -115,19 +161,27 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllSubTasks() {
+    public boolean deleteAllSubTasks() {
         Set<Integer> ids = new HashSet<>();
+        boolean isDeleted = true;
 
-        for (Task task : tasksStorage.values()) {
-            if (task instanceof SubTask) {
-                ids.add(task.getId());
+        if (!tasksStorage.isEmpty()) {
+            for (Task task : tasksStorage.values()) {
+                if (task instanceof SubTask) {
+                    ids.add(task.getId());
+                } else {
+                    isDeleted = false;
+                }
             }
+            for (Integer id : ids) {
+                deleteSubTaskById(id);
+                isDeleted = true;
+            }
+        } else {
+            isDeleted = false;
         }
-        for (Integer id : ids) {
-            deleteSubTaskById(id);
-        }
+        return isDeleted;
     }
-
 
     @Override
     public SubTask findSubTaskById(int id) {
@@ -147,6 +201,7 @@ public class InMemoryTasksManager implements TaskManager {
         idCounter += 1;
         subTask.setId(idCounter);
         tasksStorage.put(idCounter, subTask);
+        updatePrioritySet(subTask, 0);
 
         ArrayList<SubTask> subTaskList = epic.getSubTasks();
         subTaskList.add(subTask);
@@ -169,6 +224,9 @@ public class InMemoryTasksManager implements TaskManager {
             updatedSubTask.setDescription(subTask.getDescription());
             updatedSubTask.setStatus(subTask.getStatus());
             updatedSubTask.setEpicID(subTask.getEpicID());
+            updatedSubTask.setStartTime(subTask.getStartTime());
+            updatedSubTask.setDuration(subTask.getDuration());
+            updatePrioritySet(subTask, 1);
 
             Epic epic = (Epic) tasksStorage.get(updatedSubTask.getEpicID());
 
@@ -192,6 +250,7 @@ public class InMemoryTasksManager implements TaskManager {
             isDeleted = false;
         } else {
             Integer currentEpicID = ((SubTask) tasksStorage.get(id)).getEpicID();
+            updatePrioritySet(tasksStorage.get(id), 2);
             tasksStorage.remove(id);
 
             if (!((Epic) tasksStorage.get(currentEpicID)).getSubTasks().isEmpty()) {
@@ -218,17 +277,26 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllEpics() {
-        Set<Integer> ids = new HashSet<>(tasksStorage.keySet());
+    public boolean deleteAllEpics() {
+        Set<Integer> ids = new HashSet<>();
+        boolean isDeleted = true;
 
-        for (Task task : tasksStorage.values()) {
-            if (task instanceof Epic) {
-                ids.add(task.getId());
+        if (!tasksStorage.isEmpty()) {
+            for (Task task : tasksStorage.values()) {
+                if (task instanceof Epic) {
+                    ids.add(task.getId());
+                } else {
+                    isDeleted = false;
+                }
             }
+            for (Integer id : ids) {
+                deleteEpicById(id);
+                isDeleted = true;
+            }
+        } else {
+            isDeleted = false;
         }
-        for (Integer id : ids) {
-            deleteEpicById(id);
-        }
+        return isDeleted;
     }
 
     @Override
@@ -266,6 +334,7 @@ public class InMemoryTasksManager implements TaskManager {
             currentEpic.setName(epic.getName());
             currentEpic.setSubTasks(epic.getSubTasks());
 
+
             if (currentEpic.getSubTasks().isEmpty() || isNew(currentEpic)) {
                 currentEpic.setStatus(Status.NEW);
             } else if (isDone(currentEpic)) {
@@ -273,6 +342,7 @@ public class InMemoryTasksManager implements TaskManager {
             } else {
                 currentEpic.setStatus(Status.IN_PROGRESS);
             }
+
             isUpdated = true;
         } else {
             isUpdated = false;
@@ -283,17 +353,18 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public boolean deleteEpicById(int id) {
         boolean isDeleted;
-        ArrayList<SubTask> subTaskArrayList = ((Epic) tasksStorage.get(id)).getSubTasks();
 
         if (!tasksStorage.containsKey(id)) {
             isDeleted = false;
         } else {
+            ArrayList<SubTask> subTaskArrayList = ((Epic) tasksStorage.get(id)).getSubTasks();
             Set<Integer> subTasksIds = new HashSet<>();
             for (SubTask subTask : subTaskArrayList) {
                 subTasksIds.add(subTask.getId());
             }
             for (Integer subTaskId : subTasksIds) {
                 historyManager.remove(subTaskId);
+                updatePrioritySet(tasksStorage.get(subTaskId), 2);
                 tasksStorage.remove(subTaskId);
             }
             tasksStorage.remove(id);

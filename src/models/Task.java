@@ -1,5 +1,9 @@
 package models;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class Task {
@@ -7,8 +11,18 @@ public class Task {
     protected String name;
     protected String description;
     protected Status status;
+    protected int duration;
+    protected Instant startTime;
+    protected Instant endTime;
 
 
+    public Task(String name, String description, Status status, int duration, Instant startTime) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
@@ -47,10 +61,32 @@ public class Task {
         this.status = currentStatus;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+    }
+
+    public Instant getEndTime() {
+        this.endTime = this.startTime.plus(this.duration, ChronoUnit.MINUTES);
+        return this.endTime;
+    }
+
     @Override
     public String toString() {
         return "" + id + "," + TaskType.TASK + "," + name + "," +
-                status + "," + description + ",";
+                status + "," + description + "," +
+                startTime + "," + duration + "," + getEndTime() + ",";
     }
 
     @Override
@@ -65,6 +101,5 @@ public class Task {
     public int hashCode() {
         return Objects.hash(id, name, description, status);
     }
-
 
 }

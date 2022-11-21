@@ -1,20 +1,23 @@
 package models;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
 
 public class SubTask extends Task {
 
     private int epicID;
 
-    public SubTask(String name, String description, Status status, Integer epicID) {
-        super(name, description,status);
+    public SubTask(String name, String description, Status status, Integer epicID, int duration, Instant startTime) {
+        super(name, description,status, duration, startTime);
         this.epicID = epicID;
     }
 
     @Override
     public String toString() {
         return "" + id + "," + TaskType.SUBTASK + "," + name + "," +
-                status + "," + description + "," + epicID;
+                status + "," + description + ","  +
+                startTime + "," + duration + "," + getEndTime() + "," + epicID;
     }
 
     public int getEpicID() {

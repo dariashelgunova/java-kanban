@@ -10,8 +10,7 @@ public class Managers {
         this.taskHistory = historyManager;
     }
 
-    public static FileBackedTasksManager loadFromFile() {
-        File file = new File("C:\\Users\\Admin\\Desktop\\context.txt");
+    public static FileBackedTasksManager loadFromFile(File file) {
         return FileBackedTasksManager.loadFromFile(file);
     }
 
