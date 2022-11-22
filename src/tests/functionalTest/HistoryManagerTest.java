@@ -1,8 +1,9 @@
-package functional;
+package functionalTest;
 
-import models.CustomNode;
-import models.Status;
-import models.Task;
+import main.functional.InMemoryHistoryManager;
+import main.models.CustomNode;
+import main.models.Status;
+import main.models.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +13,6 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HistoryManagerTest {
-    /* a. Пустая история задач.
-    b. Дублирование.
-    с. Удаление из истории: начало, середина, конец. */
 
     InMemoryHistoryManager taskHistory;
     HashMap<Integer, CustomNode> historyRequestHashMap;

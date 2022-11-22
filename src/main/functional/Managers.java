@@ -1,4 +1,4 @@
-package functional;
+package main.functional;
 
 import java.io.File;
 import java.util.HashMap;

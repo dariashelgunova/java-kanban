@@ -1,15 +1,16 @@
-package functional;
+package main.functional;
 
-import exceptions.ManagerSaveException;
-import models.*;
+import main.exceptions.ManagerSaveException;
+import main.models.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
 
@@ -179,6 +180,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public static FileBackedTasksManager loadFromFile(@NotNull File file) {
         HashMap<Integer, Task> tasksFromFile = new HashMap<>();
         HistoryManager historyManager = new InMemoryHistoryManager();
+        int counter = 0;
 
         try (BufferedReader csvReader = new BufferedReader(new FileReader(file))) {
             csvReader.readLine(); // считываем заголовок
@@ -187,12 +189,15 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 String line = csvReader.readLine();
                 if (line.isBlank()) {
                     // Считываем историю
-                    csvReader.readLine();
                     String history = csvReader.readLine();
                     if (history == null || history.isBlank() || history.isEmpty()) {
+                        addSubTasksToEpics(tasksFromFile);
+                        setEpicsTime(tasksFromFile);
                         return new FileBackedTasksManager(historyManager, tasksFromFile, file);
                     }
                     historyFromString(historyManager, history, tasksFromFile);
+                    addSubTasksToEpics(tasksFromFile);
+                    setEpicsTime(tasksFromFile);
                     return new FileBackedTasksManager(historyManager, tasksFromFile, file);
                 }
                 Task task = fromString(line);
@@ -214,7 +219,13 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         String name = data[2];
         Status status = Status.valueOf(data[3]);
         String description = data[4];
-        Instant startTime = Instant.parse(data[5]);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.of("UTC"));
+        Instant startTime = Optional.ofNullable(data[5])
+                .map(d -> LocalDateTime.parse(d, formatter))
+                .map(d -> d.toInstant(ZoneOffset.UTC))
+                .orElse(null);
+
         int duration = Integer.parseInt(data[6]);
         if (TaskType.SUBTASK.equals(type))  {
             int epicId = Integer.parseInt(data[8]);
@@ -244,7 +255,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
     }
 
-    private static void addSubTasksToEpics (@NotNull HashMap<Integer, Task> tasksHashMap) {
+    private static void addSubTasksToEpics(@NotNull HashMap<Integer, Task> tasksHashMap) {
         for (Task task : tasksHashMap.values()) {
             if (task instanceof SubTask) {
                 int epicId = ((SubTask) task).getEpicID();

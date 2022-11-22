@@ -1,8 +1,11 @@
-package models;
+package main.models;
 
-import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
+import static java.util.Optional.ofNullable;
 
 public class SubTask extends Task {
 
@@ -15,9 +18,12 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return "" + id + "," + TaskType.SUBTASK + "," + name + "," +
-                status + "," + description + ","  +
-                startTime + "," + duration + "," + getEndTime() + "," + epicID;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.of("UTC"));
+        String start = ofNullable(getStartTime()).map(formatter::format).orElse(null);
+        String end = ofNullable(getEndTime()).map(formatter::format).orElse(null);
+
+        return "" + id + "," + TaskType.SUBTASK + "," + name + "," + status + "," + description + ","  + start +
+                 "," + duration + "," + end + "," + epicID;
     }
 
     public int getEpicID() {

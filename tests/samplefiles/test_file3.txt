@@ -1,4 +1,0 @@
-id,type,name,status,description,startTime,duration,endTime,epic
-1,TASK,Task1,NEW,description,2022-11-25T13:06:08Z,13,2022-11-25T13:19:08Z,
-
-1

@@ -1,11 +1,11 @@
-package functional;
+package functionalTest;
 
-import models.Epic;
-import models.Status;
-import models.SubTask;
-import models.Task;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import main.functional.HistoryManager;
+import main.functional.TaskManager;
+import main.models.Epic;
+import main.models.Status;
+import main.models.SubTask;
+import main.models.Task;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -14,14 +14,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static models.Status.NEW;
+import static main.models.Status.NEW;
 import static org.junit.jupiter.api.Assertions.*;
 
 abstract class TaskManagerTest<T extends TaskManager> {
 
-    HistoryManager historyManager;
-    HashMap<Integer, Task> tasksStorage;
-    T taskManager;
+    protected HistoryManager historyManager;
+    protected HashMap<Integer, Task> tasksStorage;
+    protected T taskManager;
 
     //tasks
     @Test
@@ -294,28 +294,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
         ArrayList<SubTask> subTasks1 = new ArrayList<>();
         Epic task1 = new Epic("Task1", "description", subTasks1);
         taskManager.createEpic(task1);
-        assertEquals(Status.NEW, task1.getStatus());
-
-        //e.Подзадачи со статусом IN_PROGRESS.
-        assertNotNull(savedTask);
-        assertEquals(task2, savedTask);
-        assertEquals(Status.IN_PROGRESS, task2.getStatus());
-
-        //b. Все подзадачи со статусом NEW.
-        subTask2.setStatus(Status.NEW);
-        taskManager.updateEpic(task2);
-        assertEquals(Status.NEW, task2.getStatus());
-
-        //c. Все подзадачи со статусом DONE.
-        subTask2.setStatus(Status.DONE);
-        subTask1.setStatus(Status.DONE);
-        taskManager.updateEpic(task2);
-        assertEquals(Status.DONE, task2.getStatus());
-
-        //d. Подзадачи со статусами NEW и DONE.
-        subTask2.setStatus(Status.NEW);
-        taskManager.updateEpic(task2);
-        assertEquals(Status.IN_PROGRESS, task2.getStatus());
 
         taskManager.deleteEpicById(task1.getId());
 

@@ -1,7 +1,7 @@
-package functional;
+package main.functional;
 
-import models.CustomNode;
-import models.Task;
+import main.models.CustomNode;
+import main.models.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

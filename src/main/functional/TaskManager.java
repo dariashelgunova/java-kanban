@@ -1,8 +1,8 @@
-package functional;
+package main.functional;
 
-import models.Epic;
-import models.SubTask;
-import models.Task;
+import main.models.Epic;
+import main.models.SubTask;
+import main.models.Task;
 
 import java.util.ArrayList;
 

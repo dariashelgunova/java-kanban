@@ -1,12 +1,11 @@
-package functional;
+package main.functional;
 
-import models.Epic;
-import models.Status;
-import models.SubTask;
-import models.Task;
+import main.models.Epic;
+import main.models.Status;
+import main.models.SubTask;
+import main.models.Task;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
 import java.util.*;
 
 public class InMemoryTasksManager implements TaskManager {

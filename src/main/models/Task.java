@@ -1,10 +1,12 @@
-package models;
+package main.models;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+
+import static java.util.Optional.ofNullable;
 
 public class Task {
     protected Integer id;
@@ -84,9 +86,11 @@ public class Task {
 
     @Override
     public String toString() {
-        return "" + id + "," + TaskType.TASK + "," + name + "," +
-                status + "," + description + "," +
-                startTime + "," + duration + "," + getEndTime() + ",";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.of("UTC"));
+        String start = ofNullable(getStartTime()).map(formatter::format).orElse(null);
+        String end = ofNullable(getEndTime()).map(formatter::format).orElse(null);
+        return "" + id + "," + TaskType.TASK + "," + name + "," + status + "," + description + "," + start +
+                "," + duration + "," + end + ",";
     }
 
     @Override

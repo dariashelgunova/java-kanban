@@ -1,6 +1,6 @@
-package functional;
+package main.functional;
 
-import models.Task;
+import main.models.Task;
 
 import java.util.ArrayList;
 

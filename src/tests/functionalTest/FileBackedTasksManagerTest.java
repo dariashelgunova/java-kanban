@@ -1,39 +1,38 @@
-package functional;
+package functionalTest;
 
-import models.Epic;
-import models.Status;
-import models.SubTask;
-import models.Task;
+import main.functional.InMemoryHistoryManager;
+import main.functional.FileBackedTasksManager;
+import main.functional.Managers;
+import main.models.Epic;
+import main.models.Status;
+import main.models.SubTask;
+import main.models.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTasksManagerTest {
+class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
 
-    File file;
-    HistoryManager historyManager;
-    HashMap<Integer, Task> tasksStorage;
-    FileBackedTasksManager taskManager;
+    private File file;
 
     @BeforeEach
     public void createManagers() {
-        historyManager = new InMemoryHistoryManager();
-        tasksStorage = new HashMap<>();
-        taskManager = new FileBackedTasksManager(historyManager,tasksStorage, file);
+        this.historyManager = new InMemoryHistoryManager();
+        this.tasksStorage = new HashMap<>();
+        this.taskManager = new FileBackedTasksManager(historyManager,tasksStorage,
+                new File("src/tests/samplefiles/test_file1.txt"));
     }
 
     @Test
     void save() {
         // case 1: one task
-        String testFilePath = "tests/samplefiles/test_file1.txt";
+        String testFilePath = "src/tests/samplefiles/test_file1.txt";
         file = new File(testFilePath);
         clearFile(file);
 
@@ -47,7 +46,7 @@ class FileBackedTasksManagerTest {
 
         String actual = readFileAsString(file);
         String expected = "id,type,name,status,description,startTime,duration,endTime,epic\n" +
-                "1,TASK,Task1,NEW,description,2022-11-25T13:06:08Z,13,2022-11-25T13:19:08Z,\n" +
+                "1,TASK,Task1,NEW,description,25.11.2022 13:06,13,25.11.2022 13:19,\n" +
                 "\n";
         assertEquals(expected, actual);
 
@@ -97,9 +96,9 @@ class FileBackedTasksManagerTest {
 
         actual = readFileAsString(file);
         expected = "id,type,name,status,description,startTime,duration,endTime,epic\n" +
-                "1,EPIC,Epic2,IN_PROGRESS,description,2022-11-20T13:06:08Z,298,2022-11-25T13:19:08Z,\n" +
-                "2,SUBTASK,subTask1,NEW,description,2022-11-25T13:06:08Z,13,2022-11-25T13:19:08Z,1\n" +
-                "3,SUBTASK,subTask2,IN_PROGRESS,description,2022-11-20T13:06:08Z,55,2022-11-20T14:01:08Z,1\n" +
+                "1,EPIC,Epic2,IN_PROGRESS,description,20.11.2022 13:06,68,25.11.2022 13:19,\n" +
+                "2,SUBTASK,subTask1,NEW,description,25.11.2022 13:06,13,25.11.2022 13:19,1\n" +
+                "3,SUBTASK,subTask2,IN_PROGRESS,description,20.11.2022 13:06,55,20.11.2022 14:01,1\n" +
                 "\n" +
                 "1";
         assertEquals(expected, actual);
@@ -108,21 +107,28 @@ class FileBackedTasksManagerTest {
     @Test
     void loadFromFile() {
         // case 0: empty file
-        file = new File("tests/samplefiles/test_file2.txt");
-        FileBackedTasksManager manager = Managers.loadFromFile(file);
+//        file = new File("src/tests/samplefiles/test_file2.txt");
+        FileBackedTasksManager manager;
+//
+//        assertTrue(manager.findAllTasks().isEmpty());
+//        assertTrue(manager.getHistoryManager().getHistory().isEmpty());
+//
+//        // case 1: one task
+//        file = new File("src/tests/samplefiles/test_file3.txt");
+//        manager = Managers.loadFromFile(file);
+//
+//        assertEquals(1, manager.findAllTasks().size());
+//        assertTrue(manager.getHistoryManager().getHistory().isEmpty());
+//        assertEquals("Task1", manager.findTaskById(1).getName());
+//        assertNotNull(manager.findTaskById(1));
 
-        assertTrue(manager.findAllTasks().isEmpty());
-        assertTrue(manager.getHistoryManager().getHistory().isEmpty());
-
-        // case 1: one task
-        file = new File("tests/samplefiles/test_file3.txt");
+        // case 3: tasks + history
+        file = new File("src/tests/samplefiles/test_file4.txt");
         manager = Managers.loadFromFile(file);
 
-        assertEquals(1, manager.findAllTasks().size());
-        assertTrue(manager.getHistoryManager().getHistory().isEmpty());
-        assertEquals("Task1", manager.findTaskById(1).getName());
-        assertNotNull(manager.findTaskById(1));
-
+        assertEquals(1, manager.findAllEpics().size());
+        assertFalse(manager.getHistoryManager().getHistory().isEmpty());
+        assertEquals(3, manager.getHistoryManager().getHistory().size());
     }
 
     private static void clearFile(File file) {

@@ -1,5 +1,7 @@
-package functional;
+package functionalTest;
 
+import main.functional.InMemoryHistoryManager;
+import main.functional.InMemoryTasksManager;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.HashMap;

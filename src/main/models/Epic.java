@@ -1,11 +1,14 @@
-package models;
+package main.models;
 
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 public class Epic extends Task {
     private ArrayList<SubTask> subTasks;
@@ -25,6 +28,7 @@ public class Epic extends Task {
 
     @Override
     public int getDuration() {
+        this.duration = 0;
         if (!subTasks.isEmpty()) {
             for (SubTask subTask : subTasks) {
                 this.duration += subTask.getDuration();
@@ -62,9 +66,12 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.of("UTC"));
+        String start = ofNullable(getStartTime()).map(formatter::format).orElse(null);
+        String end = ofNullable(getEndTime()).map(formatter::format).orElse(null);
         return "" + id + "," + TaskType.EPIC + "," + name + "," +
-                status + "," + description + ","  +
-                getStartTime() + "," + getDuration() + "," + getEndTime() + ",";
+                status + "," + description + ","  + start +
+                 "," + getDuration() + "," + end + ",";
     }
 
     @Override
