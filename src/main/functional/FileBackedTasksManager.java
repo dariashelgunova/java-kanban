@@ -22,6 +22,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         if (!tasksStorage.isEmpty()) idCounter = Collections.max(tasksStorage.keySet()) + 1;
     }
 
+
     //tasks
 
     @Override
@@ -32,9 +33,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
     @Override
     public boolean deleteAllTasks() {
-        super.deleteAllTasks();
+        boolean isDeleted = super.deleteAllTasks();
         save();
-        return super.deleteAllTasks();
+        return isDeleted;
     }
 
     @Override
@@ -75,9 +76,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
     @Override
     public boolean deleteAllSubTasks() {
-        super.deleteAllSubTasks();
+        boolean isDeleted = super.deleteAllSubTasks();
         save();
-        return super.deleteAllSubTasks();
+        return isDeleted;
     }
 
 
@@ -119,9 +120,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
     @Override
     public boolean deleteAllEpics() {
-        super.deleteAllEpics();
+        boolean isDeleted = super.deleteAllEpics();
         save();
-        return super.deleteAllEpics();
+        return isDeleted;
     }
 
     @Override
@@ -180,7 +181,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public static FileBackedTasksManager loadFromFile(@NotNull File file) {
         HashMap<Integer, Task> tasksFromFile = new HashMap<>();
         HistoryManager historyManager = new InMemoryHistoryManager();
-        int counter = 0;
 
         try (BufferedReader csvReader = new BufferedReader(new FileReader(file))) {
             csvReader.readLine(); // считываем заголовок
@@ -212,7 +212,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     // "id,type,name,status,description,startTime,duration,endTime,epic"
-    private static Task fromString(@NotNull String value) {
+    protected static Task fromString(@NotNull String value) {
         String[] data = value.split(",");
         int id = Integer.parseInt(data[0]);
         TaskType type = TaskType.valueOf(data[1]);
@@ -245,7 +245,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
     }
 
-    private static void setEpicsTime(@NotNull HashMap<Integer, Task> tasksHashMap) {
+    protected static void setEpicsTime(@NotNull HashMap<Integer, Task> tasksHashMap) {
         for (Task task : tasksHashMap.values()) {
             if (task instanceof Epic) {
                 task.getStartTime();
@@ -255,7 +255,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
     }
 
-    private static void addSubTasksToEpics(@NotNull HashMap<Integer, Task> tasksHashMap) {
+    protected static void addSubTasksToEpics(@NotNull HashMap<Integer, Task> tasksHashMap) {
         for (Task task : tasksHashMap.values()) {
             if (task instanceof SubTask) {
                 int epicId = ((SubTask) task).getEpicID();
@@ -265,11 +265,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
     }
 
-    private static void historyFromString(HistoryManager historyManager, String value, HashMap<Integer, Task> tasksHashMap) {
+    protected static void historyFromString(HistoryManager historyManager, String value, HashMap<Integer, Task> tasksHashMap) {
         // восстановить менеджера истории
-        List<Integer> list = new ArrayList<>();
         String[] data = value.split(",");
-        int id = 0;
+        int id;
         for (String element : data) {
             id = Integer.parseInt(element);
             historyManager.add(tasksHashMap.get(id));

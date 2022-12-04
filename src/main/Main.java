@@ -1,14 +1,15 @@
 package main;
 
-import main.functional.FileBackedTasksManager;
-import main.functional.HistoryManager;
+import main.controller.HttpTaskServer;
+import main.controller.KVServer;
+
+import java.io.IOException;
 
 public class Main {
-    private static FileBackedTasksManager fileBackedTasksManager;
-    private static HistoryManager historyManager;
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws IOException {
+        new KVServer().start();
+        new HttpTaskServer().start();
     }
 
 }

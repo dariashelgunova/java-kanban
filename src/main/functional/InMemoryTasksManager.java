@@ -12,7 +12,7 @@ public class InMemoryTasksManager implements TaskManager {
     protected HashMap<Integer, Task> tasksStorage;
     protected HistoryManager historyManager;
 
-    protected final TreeSet<Task> tasksByPriority = new TreeSet<>(Comparator.comparing(Task::getStartTime)
+    protected TreeSet<Task> tasksByPriority = new TreeSet<>(Comparator.comparing(Task::getStartTime)
             .thenComparing(Task::getId));
 
     protected int idCounter = 0;
@@ -24,10 +24,11 @@ public class InMemoryTasksManager implements TaskManager {
 
     protected boolean checkIfAvailable(@NotNull Task task) {
         return tasksByPriority.stream()
-                .noneMatch(t -> !t.getStartTime().isBefore(task.getEndTime()) ||
+                .noneMatch(t -> !t.getStartTime().isBefore(task.getEndTime()) &&
                         !task.getStartTime().isBefore(t.getEndTime()));
     }
 
+    @Override
     public TreeSet<Task> getPrioritizedTasks() {
         return this.tasksByPriority;
     }
@@ -40,7 +41,7 @@ public class InMemoryTasksManager implements TaskManager {
     protected void updatePrioritySet(@NotNull Task task, int actionId) {
        if (actionId == 0 && tasksByPriority.isEmpty()) {
            tasksByPriority.add(task);
-       } else if (actionId == 0 && !tasksStorage.containsValue(task) && checkIfAvailable(task)) {
+       } else if (actionId == 0 && !tasksByPriority.contains(task) && checkIfAvailable(task)) {
            tasksByPriority.add(task);
        } else if (actionId == 1) {
            int taskId = task.getId();
@@ -372,7 +373,7 @@ public class InMemoryTasksManager implements TaskManager {
         }
         return isDeleted;
     }
-
+    @Override
     public ArrayList<SubTask> findSubTasksByEpic(@NotNull Epic epic) {
         return epic.getSubTasks();
     }
@@ -397,6 +398,10 @@ public class InMemoryTasksManager implements TaskManager {
             }
         }
         return true;
+    }
+    @Override
+    public ArrayList<Task> getHistory() {
+        return historyManager.getHistory();
     }
 
 }

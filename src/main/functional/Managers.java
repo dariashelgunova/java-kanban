@@ -14,6 +14,10 @@ public class Managers {
         return FileBackedTasksManager.loadFromFile(file);
     }
 
+    public static HTTPTaskManager loadFromServer(String url) {
+        return HTTPTaskManager.loadContext(url);
+    }
+
     public TaskManager initializeInMemoryManager() {
         return new InMemoryTasksManager(taskHistory, new HashMap<>());
     }

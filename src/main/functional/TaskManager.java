@@ -5,8 +5,11 @@ import main.models.SubTask;
 import main.models.Task;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 public interface TaskManager {
+
+    TreeSet<Task> getPrioritizedTasks();
 
     //tasks
     ArrayList<Task> findAllTasks();
@@ -34,6 +37,8 @@ public interface TaskManager {
 
     boolean deleteEpicById(int ID);
 
+    ArrayList<SubTask> findSubTasksByEpic(Epic epic);
+
     //subTasks
     ArrayList<SubTask> findAllSubTasks();
 
@@ -46,4 +51,6 @@ public interface TaskManager {
     boolean updateSubTask(SubTask object);
 
     boolean deleteSubTaskById(int ID);
+
+    ArrayList<Task> getHistory();
 }
