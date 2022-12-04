@@ -280,7 +280,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createSubTask(subTask2);
 
         final int taskId = task2.getId();
-        final Epic savedTask = (Epic) taskManager.findEpicById(taskId);
+        taskManager.findEpicById(taskId);
 
         Instant task2StartTime = subTask2.getStartTime();
         Instant task2EndTime = subTask1.getEndTime();
