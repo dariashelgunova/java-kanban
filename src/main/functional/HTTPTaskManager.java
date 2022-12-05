@@ -3,9 +3,9 @@ package main.functional;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import main.controller.KVTaskClient;
 import main.dto.ManagerContextDto;
 import main.exceptions.ManagerSaveException;
+import main.exceptions.ConnectionRefusedException;
 import main.models.Task;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     public HTTPTaskManager(HistoryManager historyManager, HashMap<Integer, Task> tasksStorage, String urlString) throws Exception {
         super(historyManager, tasksStorage, null);
-        kvTaskClient = new KVTaskClient(urlString, 8078);
+        kvTaskClient = new KVTaskClient(urlString);
     }
 
     public static HTTPTaskManager loadContext(String urlString) {
@@ -69,8 +69,8 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         try {
             kvTaskClient.put("8080", result);
         } catch (Exception e) {
-            System.out.println("Во время обработки запроса возникла ошибка.");
+            throw new ConnectionRefusedException("Не удалось подключиться к серверу для сохранения " +
+                    "состояния менеджера");
         }
     }
 }
-

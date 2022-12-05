@@ -1,6 +1,8 @@
-package main.controller;
+package main.kvserver;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import main.exceptions.ServerCreationException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -8,8 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
@@ -21,12 +22,16 @@ public class KVServer {
     private final Map<String, String> data = new HashMap<>();
     private final static byte[] NO_BYTES = new byte[0];
 
-    public KVServer() throws IOException {
-        apiToken = generateApiToken();
-        server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
-        server.createContext("/register", this::register);
-        server.createContext("/save", this::save);
-        server.createContext("/load", this::load);
+    public KVServer() {
+        try {
+            apiToken = generateApiToken();
+            server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
+            server.createContext("/register", this::register);
+            server.createContext("/save", this::save);
+            server.createContext("/load", this::load);
+        } catch (IOException e) {
+            throw new ServerCreationException("Не удалось создать KVServer");
+        }
     }
 
     private void load(HttpExchange h) throws IOException {

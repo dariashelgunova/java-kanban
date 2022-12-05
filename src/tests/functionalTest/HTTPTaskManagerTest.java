@@ -2,8 +2,8 @@ package functionalTest;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import main.controller.HttpTaskServer;
-import main.controller.KVServer;
+import main.httptaskserver.HttpTaskServer;
+import main.kvserver.KVServer;
 import main.models.Epic;
 import main.models.Status;
 import main.models.SubTask;
@@ -30,7 +30,7 @@ public class HTTPTaskManagerTest {
     private HttpTaskServer httpTaskServer;
 
     @BeforeEach
-    public void start() throws IOException {
+    public void start() {
         kvServer = new KVServer();
         kvServer.start();
         httpTaskServer = new HttpTaskServer();
@@ -199,7 +199,7 @@ public class HTTPTaskManagerTest {
         String result = sendGetRequest("http://localhost:8080/tasks/task/");
         ArrayList<Task> tasksList = new Gson().fromJson(result, itemsListType);
         assertTrue(tasksList.isEmpty());
-        assertEquals("Таски успешно удалены", response);
+        assertEquals("Удаление прошло успешно", response);
 
         response = sendDeleteRequest("http://localhost:8080/tasks/epic/");
         assertEquals("Во время удаления произошла ошибка, проверьте параметры запроса", response);
@@ -279,7 +279,7 @@ public class HTTPTaskManagerTest {
         String bodyRequest = gson.toJson(taskFromList);
 
         String response = sendPostRequest("http://localhost:8080/tasks/task/", bodyRequest);
-        assertEquals("Таск успешно обновлен", response);
+        assertEquals("Запрос успешно реализован", response);
     }
 
     @Test
@@ -295,7 +295,7 @@ public class HTTPTaskManagerTest {
 
         String result = sendDeleteRequest("http://localhost:8080/tasks/task/?id=" + taskFromListId);
 
-        assertEquals("Таск успешно удален", result);
+        assertEquals("Удаление прошло успешно", result);
 
         result = sendDeleteRequest("http://localhost:8080/tasks/task/?id=" + taskFromListId);
         assertEquals("Во время удаления произошла ошибка, проверьте параметры запроса", result);
@@ -337,7 +337,7 @@ public class HTTPTaskManagerTest {
         String result = sendGetRequest("http://localhost:8080/tasks/epic/");
         ArrayList<Epic> tasksList = new Gson().fromJson(result, itemsListType);
         assertTrue(tasksList.isEmpty());
-        assertEquals("Эпики успешно удалены", response);
+        assertEquals("Удаление прошло успешно", response);
 
         response = sendDeleteRequest("http://localhost:8080/tasks/epic/");
         assertEquals("Во время удаления произошла ошибка, проверьте параметры запроса", response);
@@ -442,7 +442,7 @@ public class HTTPTaskManagerTest {
         String bodyRequest = gson.toJson(epicFromList);
 
         String response = sendPostRequest("http://localhost:8080/tasks/epic/", bodyRequest);
-        assertEquals("Эпик успешно обновлен", response);
+        assertEquals("Запрос успешно реализован", response);
     }
 
     @Test
@@ -458,7 +458,7 @@ public class HTTPTaskManagerTest {
 
         String result = sendDeleteRequest("http://localhost:8080/tasks/epic/?id=" + epicFromListId);
 
-        assertEquals("Эпик успешно удален", result);
+        assertEquals("Удаление прошло успешно", result);
 
         result = sendDeleteRequest("http://localhost:8080/tasks/epic/?id=" + epicFromListId);
         assertEquals("Во время удаления произошла ошибка, проверьте параметры запроса", result);
@@ -500,7 +500,7 @@ public class HTTPTaskManagerTest {
         String result = sendGetRequest("http://localhost:8080/tasks/subtask/");
         ArrayList<SubTask> subtasksList = new Gson().fromJson(result, itemsListType);
         assertTrue(subtasksList.isEmpty());
-        assertEquals("Сабтаски успешно удалены", response);
+        assertEquals("Удаление прошло успешно", response);
 
         response = sendDeleteRequest("http://localhost:8080/tasks/subtask/");
         assertEquals("Во время удаления произошла ошибка, проверьте параметры запроса", response);
@@ -610,7 +610,7 @@ public class HTTPTaskManagerTest {
         String bodyRequest = gson.toJson(subtaskFromList);
 
         String response = sendPostRequest("http://localhost:8080/tasks/subtask/", bodyRequest);
-        assertEquals("Сабтаск успешно обновлен", response);
+        assertEquals("Запрос успешно реализован", response);
     }
 
     @Test
@@ -626,7 +626,7 @@ public class HTTPTaskManagerTest {
 
         String result = sendDeleteRequest("http://localhost:8080/tasks/subtask/?id=" + subtaskFromListId);
 
-        assertEquals("Сабтакс успешно удален", result);
+        assertEquals("Удаление прошло успешно", result);
 
         result = sendDeleteRequest("http://localhost:8080/tasks/subtask/?id=" + subtaskFromListId);
         assertEquals("Во время удаления произошла ошибка, проверьте параметры запроса", result);

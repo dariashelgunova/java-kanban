@@ -1,4 +1,4 @@
-package main.controller;
+package main.functional;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,8 +14,8 @@ public class KVTaskClient {
     private final String baseUrl;
 
 
-    public KVTaskClient(String urlString, int port) throws Exception {
-        this.baseUrl = urlString + port;
+    public KVTaskClient(String baseUrl) throws Exception {
+        this.baseUrl = baseUrl;
         URI registerUrl = URI.create(baseUrl + "/register");
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()

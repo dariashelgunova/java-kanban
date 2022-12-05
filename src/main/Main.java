@@ -1,13 +1,12 @@
 package main;
 
-import main.controller.HttpTaskServer;
-import main.controller.KVServer;
+import main.httptaskserver.HttpTaskServer;
+import main.kvserver.KVServer;
 
-import java.io.IOException;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         new KVServer().start();
         new HttpTaskServer().start();
     }
